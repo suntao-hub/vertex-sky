@@ -10,6 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db as any),
   providers: [
     Resend({
+      apiKey: process.env.RESEND_API_KEY,
       from: process.env.RESEND_FROM ?? "Vertex Sky <noreply@vertexlaunch.com>",
     }),
   ],
