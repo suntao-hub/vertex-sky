@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ── Auth.js models ────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  accounts Account[]
+  sessions Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ── Site registry ────────────────────────────────────────────────
+
+model Site {
+  id           String   @id @default(cuid())
+  url          String   @unique
+  clientName   String // client/owner name
+  businessType String?
+  primaryGoal  String? // traffic | leads | affiliate_revenue
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  technicalAudits  TechnicalAudit[]
+  schemaMarkups    SchemaMarkup[]
+  keywords         Keyword[]
+  contentItems     ContentItem[]
+  authorityEntries AuthorityEntry[]
+  aiVisibilityEntries AiVisibilityEntry[]
+  trafficSnapshots TrafficSnapshot[]
+  findings         Finding[]
+  tasks            Task[]
+}
+
+// ── Technical health ─────────────────────────────────────────────
+
+model TechnicalAudit {
+  id                  String   @id @default(cuid())
+  siteId              String
+  auditDate           DateTime @default(now())
+  crawlErrors         Int?
+  coreWebVitalsStatus String? // good | needs_improvement | poor
+  indexationIssues    Int?
+  notes               String?
+  createdAt           DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+model SchemaMarkup {
+  id          String   @id @default(cuid())
+  siteId      String
+  type        String // LocalBusiness | Product | Article | FAQ | ...
+  present     Boolean  @default(false)
+  lastChecked DateTime @default(now())
+  notes       String?
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+// ── Rankings ──────────────────────────────────────────────────────
+
+model Keyword {
+  id        String   @id @default(cuid())
+  siteId    String
+  keyword   String
+  targetUrl String?
+  createdAt DateTime @default(now())
+
+  site    Site           @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  entries RankingEntry[]
+
+  @@unique([siteId, keyword])
+}
+
+model RankingEntry {
+  id        String   @id @default(cuid())
+  keywordId String
+  date      DateTime @default(now())
+  position  Int?
+  source    String   @default("manual") // manual | dataforseo
+  notes     String?
+
+  keyword Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+
+  @@index([keywordId])
+}
+
+// ── Content pipeline ──────────────────────────────────────────────
+
+model ContentItem {
+  id            String    @id @default(cuid())
+  siteId        String
+  title         String
+  status        String // planned | in_progress | published
+  keywordGap    String? // the keyword gap this content addresses
+  url           String?
+  publishDate   DateTime?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+// ── Authority ─────────────────────────────────────────────────────
+
+model AuthorityEntry {
+  id                String   @id @default(cuid())
+  siteId            String
+  date              DateTime @default(now())
+  backlinkCount     Int?
+  qualityTrend      String? // improving | stable | declining
+  notableNewLinks   String?
+  notes             String?
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+// ── AI visibility ─────────────────────────────────────────────────
+
+model AiVisibilityEntry {
+  id          String   @id @default(cuid())
+  siteId      String
+  query       String // target query being checked
+  platform    String // ai_overviews | chatgpt | perplexity | gemini | other
+  cited       Boolean  @default(false)
+  checkedDate DateTime @default(now())
+  notes       String?
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+// ── Traffic / conversions ────────────────────────────────────────
+
+model TrafficSnapshot {
+  id          String   @id @default(cuid())
+  siteId      String
+  periodStart DateTime
+  periodEnd   DateTime
+  sessions    Int?
+  conversions Int?
+  source      String   @default("manual") // manual | ga4 | gsc
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+}
+
+// ── Findings + Tasks ─────────────────────────────────────────────
+
+// A finding logged from a monitoring entry (or ad-hoc) that can spawn a task.
+model Finding {
+  id         String   @id @default(cuid())
+  siteId     String
+  category   String // technical | content | authority | ai_visibility
+  summary    String
+  detail     String?
+  severity   String? // low | medium | high
+  sourceType String? // technical_audit | schema_markup | keyword | content_item | authority_entry | ai_visibility_entry
+  sourceId   String?
+  createdAt  DateTime @default(now())
+
+  site  Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  tasks Task[]
+
+  @@index([siteId])
+}
+
+model Task {
+  id          String    @id @default(cuid())
+  siteId      String
+  category    String // technical | content | authority | ai_visibility
+  title       String
+  description String?
+  priority    String    @default("medium") // low | medium | high
+  status      String    @default("backlog") // backlog | in_progress | done
+  dueDate     DateTime?
+  findingId   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  site    Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  finding Finding? @relation(fields: [findingId], references: [id])
+
+  @@index([siteId])
+  @@index([status])
+}
