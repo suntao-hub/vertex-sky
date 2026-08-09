@@ -2,7 +2,7 @@
 
 # CLAUDE.md — Vertex Sky
 
-SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage is public; everything else lives behind login, single user (vertexdeal@gmail.com via `ALLOWED_EMAIL` gate). Manual data entry for now — Phase 2 will swap in GSC/GA4 API automation; Phase 3 adds DataForSEO; client-scoped multi-user access is a later phase if ever needed (not built — single-user gate only).
+SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage is public; everything else lives behind login, single user (suntaodung@gmail.com via `ALLOWED_EMAIL` gate). Manual data entry for now — Phase 2 will swap in GSC/GA4 API automation; Phase 3 adds DataForSEO; client-scoped multi-user access is a later phase if ever needed (not built — single-user gate only).
 
 ## Stack
 - Next.js 16.3, App Router, TypeScript
@@ -42,7 +42,7 @@ Site registry (`Site`) is the root. Six monitoring categories hang off it: `Tech
 
 ## Env vars needed for auth
 - `AUTH_SECRET` — random secret, `.env` has a dev-only value, generate a fresh one for production
-- `ALLOWED_EMAIL` — the single email allowed to sign in (`vertexdeal@gmail.com`)
+- `ALLOWED_EMAIL` — the single email allowed to sign in (`suntaodung@gmail.com`)
 - `RESEND_API_KEY` — real Resend API key required to actually send magic-link emails; without one, sign-in fails gracefully with `?error=Configuration` (verified in dev)
 - `RESEND_FROM` — sender address, must be on a domain verified in Resend (currently `noreply@vertexsky.com` — needs that domain verified in Resend before it'll send)
 
