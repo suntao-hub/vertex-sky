@@ -10,7 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(db as any),
   providers: [
     Resend({
-      from: process.env.RESEND_FROM ?? "Vertex Sky <noreply@vertexsky.com>",
+      from: process.env.RESEND_FROM ?? "Vertex Sky <noreply@vertexlaunch.com>",
     }),
   ],
   session: { strategy: "jwt" },

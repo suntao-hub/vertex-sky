@@ -44,7 +44,7 @@ Site registry (`Site`) is the root. Six monitoring categories hang off it: `Tech
 - `AUTH_SECRET` — random secret, `.env` has a dev-only value, generate a fresh one for production
 - `ALLOWED_EMAIL` — the single email allowed to sign in (`suntaodung@gmail.com`)
 - `RESEND_API_KEY` — real Resend API key required to actually send magic-link emails; without one, sign-in fails gracefully with `?error=Configuration` (verified in dev)
-- `RESEND_FROM` — sender address, must be on a domain verified in Resend (currently `noreply@vertexsky.com` — needs that domain verified in Resend before it'll send)
+- `RESEND_FROM` — sender address, must be on a domain verified in Resend. Set to `Vertex Sky <noreply@vertexlaunch.com>`, reusing vertexlaunch.com's already-verified domain on the same Resend account — Resend's free tier only allows one verified domain per account, and vertexlaunch.com was already using the slot. Only Suntao ever sees this email (single-user magic link), so the mismatched sender domain is cosmetic, not a real problem.
 
 ## Rules
 1. Next.js 16 breaking changes apply — `params`/`searchParams` are async, `middleware.ts` → `proxy.ts` if added later. Check `node_modules/next/dist/docs/` before assuming Next 15-era APIs.
