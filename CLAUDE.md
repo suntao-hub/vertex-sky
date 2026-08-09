@@ -11,10 +11,16 @@ SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage
 - Auth.js v5 (`next-auth@beta`) + Resend magic-link email + `@auth/prisma-adapter`, JWT sessions — mirrors the vertexlaunch pattern, see [[project_vertexlaunch]]
 
 ## Deployment
-- GitHub: `github.com/suntao-hub/vertex-sky` (public, `main` branch) — pushed 2026-08-09
-- Vercel: **not yet imported** — Claude's browser tooling is policy-blocked from vercel.com, so Suntao has to do the import himself (see chat for the step-by-step: import the repo, add a Neon Postgres storage integration for `DATABASE_URL`, set `AUTH_SECRET`/`ALLOWED_EMAIL`/`RESEND_API_KEY`/`RESEND_FROM`, then point vertexsky.com's DNS at Vercel)
-- No migrations checked in — schema is applied via `npx prisma db push` (run once against the real `DATABASE_URL` before first deploy, matching vertexlaunch's actual workflow; migration drift isn't a concern yet since there's no production data)
+- GitHub: `github.com/suntao-hub/vertex-sky` (public, `main` branch), connected to Vercel — push to `main` auto-deploys
+- Live at `vertex-sky.vercel.app`. Custom domain `vertexsky.com` **not yet pointed at Vercel** — DNS step still outstanding, site currently only reachable at the `*.vercel.app` URL
+- Neon Postgres provisioned via Vercel's Storage tab, env-var prefix set to `DATABASE` so it's `DATABASE_URL` (default prefix is `STORAGE`, which would silently break the app if left as-is)
+- Auth fully verified working end-to-end in production as of 2026-08-09 (real sign-in, real magic-link email received and clicked)
+- No migrations checked in — schema is applied via `npx prisma db push` (matching vertexlaunch's actual workflow; migration drift isn't a concern yet since there's no production data)
 - `postinstall: prisma generate` in package.json so Vercel's build always regenerates the gitignored client
+- Claude's browser tooling (both `mcp__Claude_Browser` and `mcp__claude-in-chrome`) is policy-blocked from vercel.com and resend.com — any future dashboard work on either needs Suntao to drive while Claude guides step-by-step from the deployment/runtime logs. `mcp__Claude_Browser` (but not `mcp__claude-in-chrome`) can reach the deployed `*.vercel.app` app itself, just not the Vercel dashboard.
+
+## Known gotcha: Auth.js Resend provider needs `apiKey` passed explicitly
+Auth.js only auto-populates `provider.apiKey` from an env var named `AUTH_RESEND_KEY` (see `@auth/core/lib/utils/env.js`), not `RESEND_API_KEY`. `lib/auth.ts` passes `apiKey: process.env.RESEND_API_KEY` explicitly to the `Resend()` provider config to work around this — **don't remove that line**, or every send silently goes out as `Authorization: Bearer undefined` and fails with a misleading "API key is invalid" error that looks identical to an actually-bad key. This cost a long debugging session (regenerating the key twice, verifying it worked via direct curl against Resend's API, before finding the real cause in the provider source). If this pattern gets reused in another project's Auth.js + Resend setup, check for this exact same class of bug first.
 
 ## Key paths
 - App root: `C:\Users\sunta\vertex-sky\`
@@ -25,7 +31,7 @@ SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage
 - Auth API route: `app/api/auth/[...nextauth]/route.ts`
 - Shared enums/labels: `lib/constants.ts` — client-understandable labels even though internal-only, per original brief
 - Finding→Task helper: `lib/db/findings.ts` (`maybeCreateFinding`) — called from monitoring-entry server actions when the "flag as issue" checkbox is checked
-- Shared UI primitives: `components/ui.tsx`, `components/task-flag-fieldset.tsx`, `components/task-board.tsx`
+- Shared UI primitives: `components/ui.tsx`, `components/task-flag-fieldset.tsx`, `components/task-board.tsx` (client component — supports drag-and-drop between status columns in addition to a select-and-save fallback)
 
 ## Data model
 Site registry (`Site`) is the root. Six monitoring categories hang off it: `TechnicalAudit`/`SchemaMarkup`, `Keyword`/`RankingEntry`, `ContentItem`, `AuthorityEntry`, `AiVisibilityEntry`, `TrafficSnapshot`. `Finding` captures an issue surfaced from any of those (via `sourceType`/`sourceId`); `Task` optionally links back to the `Finding` that generated it. Task categories are only `technical | content | authority | ai_visibility` (no dedicated category for rankings/traffic — matches the brief). None of these are scoped by `userId` — single-user via the auth gate, not per-row ownership.
