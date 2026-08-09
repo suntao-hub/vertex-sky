@@ -7,8 +7,14 @@ SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage
 ## Stack
 - Next.js 16.3, App Router, TypeScript
 - Tailwind CSS v4 (no shadcn — plain Tailwind utility classes in `components/ui.tsx`)
-- Prisma 7.9 + `@prisma/adapter-libsql`, SQLite locally (`prisma/dev.db`) — swap to Neon Postgres adapter (`@prisma/adapter-pg`) for production, see [[project_vertex_invest]] pattern
+- Prisma 7.9 + `@prisma/adapter-pg` + Neon Postgres — **no SQLite**, `DATABASE_URL` must be a real Postgres connection string even for local dev (schema provider is `postgresql`, matches [[project_vertex_invest]] / [[project_vertexlaunch]])
 - Auth.js v5 (`next-auth@beta`) + Resend magic-link email + `@auth/prisma-adapter`, JWT sessions — mirrors the vertexlaunch pattern, see [[project_vertexlaunch]]
+
+## Deployment
+- GitHub: `github.com/suntao-hub/vertex-sky` (public, `main` branch) — pushed 2026-08-09
+- Vercel: **not yet imported** — Claude's browser tooling is policy-blocked from vercel.com, so Suntao has to do the import himself (see chat for the step-by-step: import the repo, add a Neon Postgres storage integration for `DATABASE_URL`, set `AUTH_SECRET`/`ALLOWED_EMAIL`/`RESEND_API_KEY`/`RESEND_FROM`, then point vertexsky.com's DNS at Vercel)
+- No migrations checked in — schema is applied via `npx prisma db push` (run once against the real `DATABASE_URL` before first deploy, matching vertexlaunch's actual workflow; migration drift isn't a concern yet since there's no production data)
+- `postinstall: prisma generate` in package.json so Vercel's build always regenerates the gitignored client
 
 ## Key paths
 - App root: `C:\Users\sunta\vertex-sky\`
