@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db/client";
-import { createSite } from "./actions";
+import { createSite, deleteSite } from "./actions";
 import { PRIMARY_GOALS, label } from "@/lib/constants";
 import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
 
@@ -65,28 +65,36 @@ export default async function SitesPage() {
           <p className="text-sm text-slate-500">No sites yet — add one above.</p>
         ) : (
           <ul className="flex flex-col gap-3">
-            {sites.map((site) => (
-              <li key={site.id}>
-                <Link
-                  href={`/sites/${site.id}`}
+            {sites.map((site) => {
+              const del = deleteSite.bind(null, site.id);
+              return (
+                <li
+                  key={site.id}
                   className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm transition-colors hover:border-slate-400"
                 >
-                  <div>
+                  <Link href={`/sites/${site.id}`} className="flex-1">
                     <div className="font-medium text-slate-900">{site.url}</div>
                     <div className="mt-0.5 text-sm text-slate-500">
                       {site.clientName}
                       {site.businessType ? ` · ${site.businessType}` : ""}
                       {site.primaryGoal ? ` · ${label(site.primaryGoal)}` : ""}
                     </div>
+                  </Link>
+                  <div className="flex items-center gap-3">
+                    {site._count.tasks > 0 && (
+                      <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
+                        {site._count.tasks} open task{site._count.tasks === 1 ? "" : "s"}
+                      </span>
+                    )}
+                    <form action={del}>
+                      <button type="submit" className="text-xs text-slate-400 hover:text-red-600">
+                        Delete
+                      </button>
+                    </form>
                   </div>
-                  {site._count.tasks > 0 && (
-                    <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
-                      {site._count.tasks} open task{site._count.tasks === 1 ? "" : "s"}
-                    </span>
-                  )}
-                </Link>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
