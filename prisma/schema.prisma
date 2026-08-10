@@ -115,6 +115,7 @@ model Keyword {
   id        String   @id @default(cuid())
   siteId    String
   keyword   String
+  bucket    String? // competitor | problem | category_fit
   targetUrl String?
   createdAt DateTime @default(now())
 

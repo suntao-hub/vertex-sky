@@ -1,7 +1,8 @@
 import { db } from "@/lib/db/client";
 import { createKeyword, addRankingEntry, deleteKeyword } from "./actions";
-import { RANKING_SOURCES, label } from "@/lib/constants";
+import { KEYWORD_BUCKETS, RANKING_SOURCES, label } from "@/lib/constants";
 import { HintBox, buttonClass, cardClass, inputClass, labelClass, secondaryButtonClass } from "@/components/ui";
+import { KeywordResearchPanel } from "@/components/keyword-research-panel";
 
 export default async function RankingsPage({
   params,
@@ -20,7 +21,16 @@ export default async function RankingsPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">Add a target keyword</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Suggest keywords with Claude</h2>
+        <p className="mb-4 text-xs text-slate-500">
+          Give it a topic and, if you have any, competitor names — it'll suggest buyer-intent keywords bucketed
+          by competitor / problem / category-fit terms, ready to add straight to tracking.
+        </p>
+        <KeywordResearchPanel siteId={siteId} />
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Add a target keyword manually</h2>
         <HintBox>
           <strong>Where to find keywords, free:</strong>{" "}
           <a
@@ -39,6 +49,17 @@ export default async function RankingsPage({
           <div className="sm:col-span-2">
             <label className={labelClass}>Keyword</label>
             <input name="keyword" type="text" required className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>Bucket (optional)</label>
+            <select name="bucket" defaultValue="" className={inputClass}>
+              <option value="">Not set</option>
+              {KEYWORD_BUCKETS.map((b) => (
+                <option key={b} value={b}>
+                  {label(b)}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className={labelClass}>Target URL (optional)</label>
@@ -64,7 +85,14 @@ export default async function RankingsPage({
               <div key={kw.id} className={cardClass}>
                 <div className="mb-3 flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-slate-900">{kw.keyword}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium text-slate-900">{kw.keyword}</h3>
+                      {kw.bucket && (
+                        <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-700">
+                          {label(kw.bucket)}
+                        </span>
+                      )}
+                    </div>
                     {kw.targetUrl && <p className="text-xs text-slate-500">{kw.targetUrl}</p>}
                   </div>
                   <div className="flex items-center gap-3">

@@ -9,6 +9,7 @@ export const AI_PLATFORMS = ["ai_overviews", "chatgpt", "perplexity", "gemini", 
 export const CONTENT_STATUSES = ["planned", "in_progress", "published"] as const;
 export const CONTENT_FORMATS = ["review", "guide", "best_of", "comparison", "alternative", "other"] as const;
 export const RANKING_SOURCES = ["manual", "dataforseo"] as const;
+export const KEYWORD_BUCKETS = ["competitor", "problem", "category_fit"] as const;
 export const TRAFFIC_SOURCES = ["manual", "ga4", "gsc"] as const;
 
 export const LABELS: Record<string, string> = {
@@ -47,6 +48,9 @@ export const LABELS: Record<string, string> = {
   best_of: "Best-of List",
   comparison: "X vs Y Comparison",
   alternative: "Alternatives Page",
+  competitor: "Competitor Term",
+  problem: "Problem Term",
+  category_fit: "Category / Fit Term",
 };
 
 export function label(value: string | null | undefined): string {
