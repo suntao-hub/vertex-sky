@@ -6,10 +6,13 @@ import { TaskFlagFieldset } from "@/components/task-flag-fieldset";
 
 export default async function AuthorityPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ siteId: string }>;
+  searchParams: Promise<{ prefill?: string }>;
 }) {
   const { siteId } = await params;
+  const { prefill } = await searchParams;
   const entries = await db.authorityEntry.findMany({ where: { siteId }, orderBy: { date: "desc" }, take: 20 });
 
   const createEntry = createAuthorityEntry.bind(null, siteId);
@@ -18,6 +21,11 @@ export default async function AuthorityPage({
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
         <h2 className="mb-4 text-sm font-semibold text-slate-700">Log an authority snapshot</h2>
+        {prefill && (
+          <p className="mb-4 rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-800">
+            Logging distribution for a published content item — edit the note below as needed.
+          </p>
+        )}
         <form action={createEntry} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -38,7 +46,7 @@ export default async function AuthorityPage({
           </div>
           <div>
             <label className={labelClass}>Notable new links</label>
-            <textarea name="notableNewLinks" rows={2} className={inputClass} />
+            <textarea name="notableNewLinks" rows={2} defaultValue={prefill ?? ""} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Notes</label>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { db } from "@/lib/db/client";
 import { createContentItem, updateContentStatus } from "./actions";
 import { CONTENT_STATUSES, label } from "@/lib/constants";
@@ -78,6 +79,16 @@ export default async function ContentPage({
                       )}
                       {item.url && <div className="text-xs text-slate-500">{item.url}</div>}
                       {item.notes && <div className="mt-1 text-sm text-slate-600">{item.notes}</div>}
+                      {item.status === "published" && (
+                        <Link
+                          href={`/sites/${siteId}/authority?prefill=${encodeURIComponent(
+                            `Distributed "${item.title}"${item.url ? ` (${item.url})` : ""}`
+                          )}`}
+                          className="mt-1 inline-block text-xs font-medium text-sky-700 hover:text-sky-800"
+                        >
+                          Log distribution →
+                        </Link>
+                      )}
                     </div>
                     <form action={update} className="flex items-center gap-2">
                       <select name="status" defaultValue={item.status} className={`${inputClass} w-auto`}>

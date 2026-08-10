@@ -22,8 +22,14 @@ export default async function AiVisibilityPage({
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
         <h2 className="mb-4 text-sm font-semibold text-slate-700">Check AI visibility for a query</h2>
-        <p className="mb-4 text-xs text-slate-500">
+        <p className="mb-1 text-xs text-slate-500">
           Track whether this site is cited in AI Overviews, ChatGPT, Perplexity, etc. for a target query.
+        </p>
+        <p className="mb-4 rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-800">
+          Quickest check: open an incognito window, type a real buyer question this site should own, and see if it
+          gets named. Also worth asking — does this site's product have any agent-callable surface (a documented
+          API, an MCP server, a ChatGPT/Claude plugin)? Products AI agents can operate directly are more likely to
+          get recommended by those same agents.
         </p>
         <form action={createEntry} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
