@@ -7,6 +7,7 @@ export const SCHEMA_TYPES = ["LocalBusiness", "Product", "Article", "FAQ", "Orga
 export const QUALITY_TRENDS = ["improving", "stable", "declining"] as const;
 export const AI_PLATFORMS = ["ai_overviews", "chatgpt", "perplexity", "gemini", "other"] as const;
 export const CONTENT_STATUSES = ["planned", "in_progress", "published"] as const;
+export const CONTENT_FORMATS = ["review", "guide", "best_of", "comparison", "alternative", "other"] as const;
 export const RANKING_SOURCES = ["manual", "dataforseo"] as const;
 export const TRAFFIC_SOURCES = ["manual", "ga4", "gsc"] as const;
 
@@ -41,6 +42,11 @@ export const LABELS: Record<string, string> = {
   dataforseo: "DataForSEO",
   ga4: "GA4",
   gsc: "Search Console",
+  review: "Review",
+  guide: "Guide",
+  best_of: "Best-of List",
+  comparison: "X vs Y Comparison",
+  alternative: "Alternatives Page",
 };
 
 export function label(value: string | null | undefined): string {

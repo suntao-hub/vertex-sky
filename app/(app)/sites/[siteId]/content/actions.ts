@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 export async function createContentItem(siteId: string, formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const status = String(formData.get("status") ?? "planned");
+  const format = String(formData.get("format") ?? "").trim() || null;
   const keywordGap = String(formData.get("keywordGap") ?? "").trim() || null;
   const url = String(formData.get("url") ?? "").trim() || null;
   const publishDateRaw = String(formData.get("publishDate") ?? "").trim();
@@ -16,7 +17,7 @@ export async function createContentItem(siteId: string, formData: FormData) {
   if (!title) throw new Error("Title is required");
 
   const item = await db.contentItem.create({
-    data: { siteId, title, status, keywordGap, url, publishDate, notes },
+    data: { siteId, title, status, format, keywordGap, url, publishDate, notes },
   });
 
   const flagTask = formData.get("flagTask") === "1";

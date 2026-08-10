@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { createTechnicalAudit, upsertSchemaMarkup } from "./actions";
 import { CWV_STATUSES, SCHEMA_TYPES, label } from "@/lib/constants";
-import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
+import { HintBox, buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
 import { TaskFlagFieldset } from "@/components/task-flag-fieldset";
 
 export default async function TechnicalPage({
@@ -22,7 +22,23 @@ export default async function TechnicalPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Log an audit</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Log an audit</h2>
+        <HintBox>
+          <strong>Where to find this, free:</strong> Crawl errors and indexation issues —{" "}
+          <a href="https://search.google.com/search-console" target="_blank" rel="noreferrer" className="underline">
+            Google Search Console
+          </a>{" "}
+          → Pages report. Core Web Vitals —{" "}
+          <a href="https://pagespeed.web.dev" target="_blank" rel="noreferrer" className="underline">
+            PageSpeed Insights
+          </a>{" "}
+          (paste the URL, run it, use the overall rating) or Search Console&apos;s Core Web Vitals report. Schema
+          markup — test any page with Google&apos;s{" "}
+          <a href="https://search.google.com/test/rich-results" target="_blank" rel="noreferrer" className="underline">
+            Rich Results Test
+          </a>
+          .
+        </HintBox>
         <form action={createAudit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>

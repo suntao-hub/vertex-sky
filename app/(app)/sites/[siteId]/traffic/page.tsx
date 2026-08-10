@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { createTrafficSnapshot } from "./actions";
 import { TRAFFIC_SOURCES, label } from "@/lib/constants";
-import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
+import { HintBox, buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
 
 export default async function TrafficPage({
   params,
@@ -20,8 +20,16 @@ export default async function TrafficPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Log traffic / conversions</h2>
-        <p className="mb-4 text-xs text-slate-500">Pulled from GA4/Search Console — manual for now, API later.</p>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Log traffic / conversions</h2>
+        <HintBox>
+          <strong>Where to find this, free:</strong> Sessions —{" "}
+          <a href="https://analytics.google.com" target="_blank" rel="noreferrer" className="underline">
+            GA4
+          </a>{" "}
+          → Reports → Acquisition (filter to Organic Search for SEO-specific traffic). Clicks/impressions from
+          search specifically — Search Console → Performance report. Conversions depend on what you&apos;ve set up
+          as a goal/event in GA4.
+        </HintBox>
         <form action={createSnapshot} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>

@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { createKeyword, addRankingEntry, deleteKeyword } from "./actions";
 import { RANKING_SOURCES, label } from "@/lib/constants";
-import { buttonClass, cardClass, inputClass, labelClass, secondaryButtonClass } from "@/components/ui";
+import { HintBox, buttonClass, cardClass, inputClass, labelClass, secondaryButtonClass } from "@/components/ui";
 
 export default async function RankingsPage({
   params,
@@ -20,7 +20,21 @@ export default async function RankingsPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Add a target keyword</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Add a target keyword</h2>
+        <HintBox>
+          <strong>Where to find keywords, free:</strong>{" "}
+          <a
+            href="https://search.google.com/search-console"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            Search Console
+          </a>{" "}
+          → Performance report shows real queries this site already gets impressions for — the fastest source of
+          keywords worth tracking. Beyond that: think about what a buyer would actually type (competitor names,
+          the problem they have, &quot;best X for Y&quot;) rather than guessing generic terms.
+        </HintBox>
         <form action={createKw} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="sm:col-span-2">
             <label className={labelClass}>Keyword</label>

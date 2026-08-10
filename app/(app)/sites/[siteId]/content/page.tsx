@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { db } from "@/lib/db/client";
 import { createContentItem, updateContentStatus } from "./actions";
-import { CONTENT_STATUSES, label } from "@/lib/constants";
-import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
+import { CONTENT_FORMATS, CONTENT_STATUSES, label } from "@/lib/constants";
+import { HintBox, buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
 import { TaskFlagFieldset } from "@/components/task-flag-fieldset";
 
 export default async function ContentPage({
@@ -18,12 +18,29 @@ export default async function ContentPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Add a content item</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Add a content item</h2>
+        <HintBox>
+          <strong>Which format?</strong> Best-of lists, X-vs-Y comparisons, and alternatives pages are the three
+          formats that get quoted most often in AI answers — lead with those when you can. Reviews and guides are
+          the other common shapes. Find the keyword gap via Search Console: queries with impressions but no
+          dedicated page, or low clicks despite decent impressions.
+        </HintBox>
         <form action={createItem} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className={labelClass}>Title</label>
               <input name="title" type="text" required className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Format</label>
+              <select name="format" defaultValue="" className={inputClass}>
+                <option value="">Not set</option>
+                {CONTENT_FORMATS.map((f) => (
+                  <option key={f} value={f}>
+                    {label(f)}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelClass}>Status</label>
@@ -73,7 +90,14 @@ export default async function ContentPage({
                 <li key={item.id} className="rounded-md border border-slate-200 px-4 py-3">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="font-medium text-slate-900">{item.title}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-slate-900">{item.title}</span>
+                        {item.format && (
+                          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-700">
+                            {label(item.format)}
+                          </span>
+                        )}
+                      </div>
                       {item.keywordGap && (
                         <div className="text-xs text-slate-500">Keyword gap: {item.keywordGap}</div>
                       )}

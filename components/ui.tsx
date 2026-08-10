@@ -13,6 +13,14 @@ export const linkClass = "text-sky-700 hover:text-sky-800 font-medium";
 
 export const cardClass = "rounded-lg border border-slate-200 bg-white p-5 shadow-sm";
 
+export function HintBox({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-4 rounded-md bg-sky-50 px-3 py-2 text-xs leading-relaxed text-sky-800">
+      {children}
+    </div>
+  );
+}
+
 const priorityColors: Record<string, string> = {
   low: "bg-slate-100 text-slate-600",
   medium: "bg-amber-100 text-amber-700",

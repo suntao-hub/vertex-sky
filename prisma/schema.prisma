@@ -144,6 +144,7 @@ model ContentItem {
   siteId        String
   title         String
   status        String // planned | in_progress | published
+  format        String? // review | guide | best_of | comparison | alternative | other
   keywordGap    String? // the keyword gap this content addresses
   url           String?
   publishDate   DateTime?

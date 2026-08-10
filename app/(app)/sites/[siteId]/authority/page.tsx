@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/client";
 import { createAuthorityEntry } from "./actions";
 import { QUALITY_TRENDS, label } from "@/lib/constants";
-import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
+import { HintBox, buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
 import { TaskFlagFieldset } from "@/components/task-flag-fieldset";
 
 export default async function AuthorityPage({
@@ -20,7 +20,21 @@ export default async function AuthorityPage({
   return (
     <div className="flex flex-col gap-6">
       <div className={cardClass}>
-        <h2 className="mb-4 text-sm font-semibold text-slate-700">Log an authority snapshot</h2>
+        <h2 className="mb-2 text-sm font-semibold text-slate-700">Log an authority snapshot</h2>
+        <HintBox>
+          <strong>Where to find backlinks, free:</strong>{" "}
+          <a
+            href="https://search.google.com/search-console"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            Search Console
+          </a>{" "}
+          → Links report shows every site linking to you — first-party data, no limits. For a broader (but
+          rate-limited) view of competitors too, Ahrefs and Moz both offer free backlink checkers with a handful
+          of lookups per day.
+        </HintBox>
         {prefill && (
           <p className="mb-4 rounded-md bg-sky-50 px-3 py-2 text-xs text-sky-800">
             Logging distribution for a published content item — edit the note below as needed.
