@@ -73,7 +73,7 @@ export default async function SitesPage() {
               return (
                 <li
                   key={site.id}
-                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm transition-colors hover:border-slate-400"
+                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-5 py-4 shadow-sm transition-colors hover:border-sky-300"
                 >
                   <Link href={`/sites/${site.id}`} className="flex-1">
                     <div className="font-medium text-slate-900">{site.url}</div>

@@ -194,7 +194,7 @@ export default async function SiteOverviewPage({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tiles.map((tile) => (
-          <Link key={tile.title} href={tile.href} className={`${cardClass} block hover:border-slate-400`}>
+          <Link key={tile.title} href={tile.href} className={`${cardClass} block hover:border-sky-300`}>
             <h3 className="text-sm font-semibold text-slate-800">{tile.title}</h3>
             <p className="mt-2 text-sm text-slate-600">{tile.body}</p>
           </Link>
@@ -204,7 +204,7 @@ export default async function SiteOverviewPage({
       <div className={cardClass}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-800">Open tasks</h3>
-          <Link href={`/sites/${siteId}/tasks`} className="text-sm text-slate-500 hover:text-slate-800">
+          <Link href={`/sites/${siteId}/tasks`} className="text-sm text-sky-700 hover:text-sky-800">
             View all →
           </Link>
         </div>

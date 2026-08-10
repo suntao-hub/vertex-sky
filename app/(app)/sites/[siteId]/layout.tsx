@@ -30,7 +30,7 @@ export default async function SiteLayout({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link href="/sites" className="text-sm text-slate-500 hover:text-slate-800">
+        <Link href="/sites" className="text-sm text-slate-500 hover:text-sky-700">
           ← All sites
         </Link>
         <h1 className="mt-1 text-2xl font-semibold">{site.url}</h1>
@@ -45,7 +45,7 @@ export default async function SiteLayout({
           <Link
             key={tab.href}
             href={`${base}${tab.href}`}
-            className="rounded-t-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            className="rounded-t-md px-3 py-2 text-sm font-medium text-slate-600 hover:bg-sky-50 hover:text-sky-700"
           >
             {tab.label}
           </Link>

@@ -10,14 +10,17 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-4">
-          <Link href="/sites" className="text-lg font-semibold tracking-tight">
-            Vertex Sky
+          <Link href="/sites" className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-sky-600 text-xs font-bold text-white">
+              VS
+            </div>
+            <span className="text-lg font-semibold tracking-tight text-slate-900">Vertex Sky</span>
           </Link>
           <nav className="flex flex-1 gap-4 text-sm font-medium text-slate-600">
-            <Link href="/sites" className="hover:text-slate-900">
+            <Link href="/sites" className="hover:text-sky-700">
               Sites
             </Link>
-            <Link href="/tasks" className="hover:text-slate-900">
+            <Link href="/tasks" className="hover:text-sky-700">
               Task Board
             </Link>
           </nav>
