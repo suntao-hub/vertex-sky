@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { createSite, deleteSite } from "./actions";
 import { PRIMARY_GOALS, label } from "@/lib/constants";
 import { buttonClass, cardClass, inputClass, labelClass } from "@/components/ui";
+import { getSiteStatusMap, STALE_DAYS } from "@/lib/db/site-status";
 
 export default async function SitesPage() {
   const sites = await db.site.findMany({
@@ -13,6 +14,7 @@ export default async function SitesPage() {
       },
     },
   });
+  const statusMap = await getSiteStatusMap(sites.map((s) => s.id));
 
   return (
     <div className="flex flex-col gap-8">
@@ -67,6 +69,7 @@ export default async function SitesPage() {
           <ul className="flex flex-col gap-3">
             {sites.map((site) => {
               const del = deleteSite.bind(null, site.id);
+              const status = statusMap.get(site.id);
               return (
                 <li
                   key={site.id}
@@ -81,6 +84,14 @@ export default async function SitesPage() {
                     </div>
                   </Link>
                   <div className="flex items-center gap-3">
+                    {status && status.needsAttention > 0 && (
+                      <span
+                        title={`Missing data or nothing logged in the last ${STALE_DAYS} days for ${status.needsAttention} of 6 categories`}
+                        className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
+                      >
+                        {status.needsAttention} need{status.needsAttention === 1 ? "s" : ""} attention
+                      </span>
+                    )}
                     {site._count.tasks > 0 && (
                       <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
                         {site._count.tasks} open task{site._count.tasks === 1 ? "" : "s"}

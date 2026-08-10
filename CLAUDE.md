@@ -29,6 +29,7 @@ Auth.js only auto-populates `provider.apiKey` from an env var named `AUTH_RESEND
 - DB singleton: `lib/db/client.ts`
 - Auth config: `lib/auth.config.ts` (callbacks, `ALLOWED_EMAIL` gate, pages) + `lib/auth.ts` (providers + adapter) — same split as vertexlaunch
 - Auth API route: `app/api/auth/[...nextauth]/route.ts`
+- Freshness/completeness helper: `lib/db/site-status.ts` (`getSiteStatusMap`) — computes missing/stale/ok per category per site in a fixed number of batched queries (not one query per site), used by both the per-site "Getting started" checklist and the `/sites` list's "N need attention" badge. `STALE_DAYS` (currently 30) is the single knob for the staleness window. Content Pipeline has no staleness concept (missing/ok only) — the other five categories do, keyed off their most recent date field. Rankings staleness is based on the latest `RankingEntry.date` via a raw SQL join (no direct `siteId` on that model), not `Keyword.createdAt`.
 - Shared enums/labels: `lib/constants.ts` — client-understandable labels even though internal-only, per original brief
 - Finding→Task helper: `lib/db/findings.ts` (`maybeCreateFinding`) — called from monitoring-entry server actions when the "flag as issue" checkbox is checked
 - Shared UI primitives: `components/ui.tsx`, `components/task-flag-fieldset.tsx`, `components/task-board.tsx` (client component — supports drag-and-drop between status columns in addition to a select-and-save fallback)
