@@ -150,6 +150,7 @@ model ContentItem {
   url           String?
   publishDate   DateTime?
   notes         String?
+  draftContent  String? // AI-generated or manually written draft body (markdown)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

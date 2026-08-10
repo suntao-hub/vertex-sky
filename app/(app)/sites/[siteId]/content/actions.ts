@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db/client";
 import { maybeCreateFinding } from "@/lib/db/findings";
+import { generateContentDraft } from "@/lib/ai/content-draft";
 import { revalidatePath } from "next/cache";
 
 export async function createContentItem(siteId: string, formData: FormData) {
@@ -44,5 +45,28 @@ export async function createContentItem(siteId: string, formData: FormData) {
 export async function updateContentStatus(siteId: string, itemId: string, formData: FormData) {
   const status = String(formData.get("status") ?? "planned");
   await db.contentItem.update({ where: { id: itemId }, data: { status } });
+  revalidatePath(`/sites/${siteId}/content`);
+}
+
+export async function generateDraftForItem(siteId: string, itemId: string): Promise<string> {
+  const [site, item] = await Promise.all([
+    db.site.findUniqueOrThrow({ where: { id: siteId } }),
+    db.contentItem.findUniqueOrThrow({ where: { id: itemId } }),
+  ]);
+
+  return generateContentDraft({
+    siteUrl: site.url,
+    clientName: site.clientName,
+    businessType: site.businessType,
+    title: item.title,
+    format: item.format,
+    keywordGap: item.keywordGap,
+    notes: item.notes,
+  });
+}
+
+export async function saveDraft(siteId: string, itemId: string, draftContent: string) {
+  await db.contentItem.update({ where: { id: itemId }, data: { draftContent } });
+  revalidatePath(`/sites/${siteId}/content/${itemId}`);
   revalidatePath(`/sites/${siteId}/content`);
 }

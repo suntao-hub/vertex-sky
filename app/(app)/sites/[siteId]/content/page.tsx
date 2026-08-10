@@ -91,10 +91,20 @@ export default async function ContentPage({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-slate-900">{item.title}</span>
+                        <Link
+                          href={`/sites/${siteId}/content/${item.id}`}
+                          className="font-medium text-slate-900 hover:text-sky-700 hover:underline"
+                        >
+                          {item.title}
+                        </Link>
                         {item.format && (
                           <span className="rounded bg-sky-100 px-1.5 py-0.5 text-xs text-sky-700">
                             {label(item.format)}
+                          </span>
+                        )}
+                        {item.draftContent && (
+                          <span className="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-700">
+                            Draft ready
                           </span>
                         )}
                       </div>
