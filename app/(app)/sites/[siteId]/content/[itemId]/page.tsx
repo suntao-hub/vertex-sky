@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { label } from "@/lib/constants";
 import { cardClass } from "@/components/ui";
 import { ContentDraftEditor } from "@/components/content-draft-editor";
+import { DistributionPostsPanel } from "@/components/distribution-posts-panel";
 
 export default async function ContentItemPage({
   params,
@@ -35,6 +36,15 @@ export default async function ContentItemPage({
           draft, not final copy.
         </p>
         <ContentDraftEditor siteId={siteId} itemId={itemId} initialDraft={item.draftContent} />
+      </div>
+
+      <div className={cardClass}>
+        <h2 className="mb-3 text-sm font-semibold text-slate-700">Distribution posts</h2>
+        <p className="mb-4 text-xs text-slate-500">
+          Generates copy for social channels — these post manually for now; there's no auto-publish integration
+          yet (that would need a paid service like Blotato, its own account, and a real cost decision).
+        </p>
+        <DistributionPostsPanel siteId={siteId} itemId={itemId} itemTitle={item.title} itemUrl={item.url} />
       </div>
     </div>
   );

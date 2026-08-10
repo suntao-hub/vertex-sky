@@ -3,6 +3,7 @@
 import { db } from "@/lib/db/client";
 import { maybeCreateFinding } from "@/lib/db/findings";
 import { generateContentDraft } from "@/lib/ai/content-draft";
+import { generateDistributionPosts, type DistributionPosts } from "@/lib/ai/distribution-draft";
 import { revalidatePath } from "next/cache";
 
 export async function createContentItem(siteId: string, formData: FormData) {
@@ -69,4 +70,22 @@ export async function saveDraft(siteId: string, itemId: string, draftContent: st
   await db.contentItem.update({ where: { id: itemId }, data: { draftContent } });
   revalidatePath(`/sites/${siteId}/content/${itemId}`);
   revalidatePath(`/sites/${siteId}/content`);
+}
+
+export async function generateDistributionPostsForItem(
+  siteId: string,
+  itemId: string
+): Promise<DistributionPosts> {
+  const [site, item] = await Promise.all([
+    db.site.findUniqueOrThrow({ where: { id: siteId } }),
+    db.contentItem.findUniqueOrThrow({ where: { id: itemId } }),
+  ]);
+
+  return generateDistributionPosts({
+    siteUrl: site.url,
+    clientName: site.clientName,
+    title: item.title,
+    url: item.url,
+    summary: item.draftContent ? item.draftContent.slice(0, 1200) : item.notes,
+  });
 }
