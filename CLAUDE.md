@@ -2,7 +2,7 @@
 
 # CLAUDE.md — Vertex Sky
 
-SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage is public; everything else lives behind login, single user (suntaodung@gmail.com via `ALLOWED_EMAIL` gate). Original brief was Phase 1 manual entry only; the actual goal (per Suntao, 2026-08-09) is broader — a system covering keyword research, internal + external content creation, distribution, and monitoring, for every site he manages. Monitoring is done; AI-assisted keyword research is the first research/creation piece built (see below). Phase 2 (GSC/GA4 API automation) and Phase 3 (DataForSEO) from the original brief are still just planned.
+SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage is public; everything else lives behind login, single user (suntaodung@gmail.com via `ALLOWED_EMAIL` gate). Original brief was Phase 1 manual entry only; the actual goal (per Suntao, 2026-08-09) is broader — a system covering keyword research, internal + external content creation, distribution, and monitoring, for every site he manages. Monitoring is done; AI-assisted keyword research and AI content drafting are the first two research/creation pieces built (see below). External distribution automation is not built yet (only the manual "Log distribution" shortcut from Content → Authority exists). Phase 2 (GSC/GA4 API automation) and Phase 3 (DataForSEO) from the original brief are still just planned.
 
 ## Stack
 - Next.js 16.3, App Router, TypeScript
@@ -12,7 +12,7 @@ SEO monitoring & task system, public-facing at vertexsky.com. Marketing homepage
 
 ## Deployment
 - GitHub: `github.com/suntao-hub/vertex-sky` (public, `main` branch), connected to Vercel — push to `main` auto-deploys
-- Live at `vertex-sky.vercel.app`. Custom domain `vertexsky.com` **not yet pointed at Vercel** — DNS step still outstanding, site currently only reachable at the `*.vercel.app` URL
+- Live at `vertexsky.com` (redirects to `www.vertexsky.com`) and `vertex-sky.vercel.app`. DNS auto-configured the moment the domain was added in Vercel — no manual A/CNAME entry was needed for this domain.
 - Neon Postgres provisioned via Vercel's Storage tab, env-var prefix set to `DATABASE` so it's `DATABASE_URL` (default prefix is `STORAGE`, which would silently break the app if left as-is)
 - Auth fully verified working end-to-end in production as of 2026-08-09 (real sign-in, real magic-link email received and clicked)
 - No migrations checked in — schema is applied via `npx prisma db push` (matching vertexlaunch's actual workflow; migration drift isn't a concern yet since there's no production data)
@@ -34,6 +34,7 @@ Auth.js only auto-populates `provider.apiKey` from an env var named `AUTH_RESEND
 - Finding→Task helper: `lib/db/findings.ts` (`maybeCreateFinding`) — called from monitoring-entry server actions when the "flag as issue" checkbox is checked
 - Shared UI primitives: `components/ui.tsx`, `components/task-flag-fieldset.tsx`, `components/task-board.tsx` (client component — supports drag-and-drop between status columns in addition to a select-and-save fallback), `components/ui.tsx`'s `HintBox` (the "where to find this, free" tip boxes on every monitoring form — added because the tool read as a pure data-entry shell to anyone who didn't already know SEO methodology; every form should have one pointing at a free source: Search Console, GA4, PageSpeed Insights, Rich Results Test)
 - AI keyword research: `lib/ai/anthropic.ts` (client singleton, needs `ANTHROPIC_API_KEY`) + `lib/ai/keyword-research.ts` (`suggestKeywords` — prompts Claude for 15 buyer-intent keywords bucketed as competitor/problem/category_fit, given site context + a seed topic). Wired into the Rankings page via `components/keyword-research-panel.tsx` (client component, calls the `suggestKeywordsForSite`/`addSuggestedKeyword` server actions directly rather than through a form). `Keyword.bucket` stores which bucket a tracked keyword came from (nullable — manual entries can skip it).
+- AI content drafting: `lib/ai/content-draft.ts` (`generateContentDraft` — format-aware prompt per `ContentItem.format`, same AEO formatting rules as keyword research: question headings, answer-first, self-contained paragraphs, comparison tables where the format calls for one, placeholders instead of invented facts). New route `app/(app)/sites/[siteId]/content/[itemId]/page.tsx` is the draft editor (`components/content-draft-editor.tsx`, client component) — click a content item's title from the pipeline list to reach it. Draft persists to `ContentItem.draftContent`; regenerating confirms before overwriting unsaved text.
 
 ## Data model
 Site registry (`Site`) is the root. Six monitoring categories hang off it: `TechnicalAudit`/`SchemaMarkup`, `Keyword`/`RankingEntry`, `ContentItem`, `AuthorityEntry`, `AiVisibilityEntry`, `TrafficSnapshot`. `Finding` captures an issue surfaced from any of those (via `sourceType`/`sourceId`); `Task` optionally links back to the `Finding` that generated it. Task categories are only `technical | content | authority | ai_visibility` (no dedicated category for rankings/traffic — matches the brief). None of these are scoped by `userId` — single-user via the auth gate, not per-row ownership.
@@ -44,7 +45,8 @@ Site registry (`Site`) is the root. Six monitoring categories hang off it: `Tech
 - Everything else lives under `app/(app)/` and is protected by `app/(app)/layout.tsx` (checks `auth()`, redirects to `/sign-in` if no session):
   - `/sites` — site registry (list + add)
   - `/sites/[siteId]` — overview tiles + open tasks
-  - `/sites/[siteId]/{technical,rankings,content,authority,ai-visibility,traffic}` — manual entry forms + history
+  - `/sites/[siteId]/{technical,rankings,content,authority,ai-visibility,traffic}` — manual entry forms + history (rankings also has the AI keyword-research panel)
+  - `/sites/[siteId]/content/[itemId]` — AI content draft editor for one content item
   - `/sites/[siteId]/tasks` — per-site task board
   - `/tasks` — cross-site task board (primary daily-use view)
 
@@ -53,7 +55,7 @@ Site registry (`Site`) is the root. Six monitoring categories hang off it: `Tech
 - `ALLOWED_EMAIL` — the single email allowed to sign in (`suntaodung@gmail.com`)
 - `RESEND_API_KEY` — real Resend API key required to actually send magic-link emails; without one, sign-in fails gracefully with `?error=Configuration` (verified in dev)
 - `RESEND_FROM` — sender address, must be on a domain verified in Resend. Set to `Vertex Sky <noreply@vertexlaunch.com>`, reusing vertexlaunch.com's already-verified domain on the same Resend account — Resend's free tier only allows one verified domain per account, and vertexlaunch.com was already using the slot. Only Suntao ever sees this email (single-user magic link), so the mismatched sender domain is cosmetic, not a real problem.
-- `ANTHROPIC_API_KEY` — powers keyword-research suggestions on the Rankings page. Without it, that panel's "Suggest keywords" button will error (not silently broken — the SDK throws on missing auth).
+- `ANTHROPIC_API_KEY` — powers keyword-research suggestions (Rankings page) and content draft generation (content item detail page). Without it, those actions error rather than silently failing — the SDK throws on missing auth. Set in both `.env` and Vercel as of 2026-08-09.
 
 ## Rules
 1. Next.js 16 breaking changes apply — `params`/`searchParams` are async, `middleware.ts` → `proxy.ts` if added later. Check `node_modules/next/dist/docs/` before assuming Next 15-era APIs.
